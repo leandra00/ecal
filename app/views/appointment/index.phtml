@@ -1,0 +1,78 @@
+<html>
+<head>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+    <h1>ECalTest - Calendar</h1>
+   
+    <div class="well">
+    <a class="btn btn-default" href="/appointment" role="button">Calendar</a>
+    <a class="btn btn-default" href="#" role="button">Appointment</a>
+    <a class="btn btn-default" href="#" role="button">Log</a>
+    </div>
+
+    <form action="/appointment/create" method="post">
+    <div class="input-group">
+      <input type="hidden" value="<?php echo $calendar_id ?> name="calendar_id"/>
+      <input type="text" class="form-control" name="title" placeholder="Appointment title">
+      <input type="text" class="form-control" name="location" placeholder="location">
+      <input type="date" class="form-control" name="start_date" placeholder="start date">
+      <input type="time" class="form-control" name="start_time" placeholder="start time">
+      <input type="date" class="form-control" name="end_date" placeholder="end date">
+      <input type="time" class="form-control" name="end_time" placeholder="end time">
+      <input type="text" class="form-control" name="notes" placeholder="notes">
+      <span class="input-group-btn">
+        <input class="btn btn-default" type="submit" value="Create"/>
+      </span>
+    </div><!-- /input-group -->
+    
+    </form>
+    
+
+<table class="table">
+<tr>
+<th>id<th>
+<th></th>
+
+</tr>
+<?php foreach ($appointments as $appointment) : ?>
+<tr>
+<form action="/appointment/update" method="post">
+    <td><?php echo $appointment->id ?></td>
+    <td>
+    
+    
+    <input type="hidden" name="id" value="<?php echo $appointment->id ?>" />
+    <input type="hidden" value="<?php echo $calendar_id ?> name="calendar_id"/>
+      <input type="text" class="form-control" name="title" value="<?php echo $appointment->title ?>">
+      <input type="text" class="form-control" name="location" value="<?php echo $appointment->location ?>">
+      <input type="date" class="form-control" name="start_date" value="<?php echo $appointment->start_date ?>">
+      <input type="time" class="form-control" name="start_time" value="<?php echo $appointment->start_time ?>">
+      <input type="date" class="form-control" name="end_date" value="<?php echo $appointment->end_date ?>">
+      <input type="time" class="form-control" name="end_time" value="<?php echo $appointment->end_time ?>">
+      <input type="text" class="form-control" name="notes" value="<?php echo $appointment->notes ?>">
+    
+    
+    </td>
+    <td>
+    
+    <button type="submit" class="btn btn-default">Update</button>
+    <a class="btn btn-default" href="/appointment/remove?id=<?php echo $appointment->id?>" role="button">Remove</a>
+    
+    </td>
+</form>
+</tr>
+<?php endforeach; ?>
+</table>
+
+
+</body>
+</html>
