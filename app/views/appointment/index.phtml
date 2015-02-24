@@ -14,14 +14,15 @@
     <h1>ECalTest - Calendar</h1>
    
     <div class="well">
-    <a class="btn btn-default" href="/appointment" role="button">Calendar</a>
-    <a class="btn btn-default" href="#" role="button">Appointment</a>
-    <a class="btn btn-default" href="#" role="button">Log</a>
+    <h2>Calendar: <?php echo $calendar_name ?></h2>
+    <a class="btn btn-default" href="/" role="button">Home</a>
+    <a class="btn btn-default" href="/calendar" role="button">Calendar</a>
     </div>
 
+    <h2>New appointment:</h2>
     <form action="/appointment/create" method="post">
     <div class="input-group">
-      <input type="hidden" value="<?php echo $calendar_id ?> name="calendar_id"/>
+      <input type="hidden" value="<?php echo $calendar_id ?>" name="calendar_id"/>
       <input type="text" class="form-control" name="title" placeholder="Appointment title">
       <input type="text" class="form-control" name="location" placeholder="location">
       <input type="date" class="form-control" name="start_date" placeholder="start date">
@@ -37,6 +38,7 @@
     </form>
     
 
+    <h2>Saved appointments: <small>(orderd by start date/time)</small></h2>
 <table class="table">
 <tr>
 <th>id<th>

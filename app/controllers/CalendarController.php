@@ -1,8 +1,15 @@
 <?php
 
+/*
+ * CalendarController
+ * A CRUD for calendars
+ */
 class CalendarController extends \Phalcon\Mvc\Controller
 {
 
+    /*
+     * indexAction
+     */
     public function indexAction()
     {
         
@@ -10,6 +17,9 @@ class CalendarController extends \Phalcon\Mvc\Controller
         $this->view->setVar("calendars", $calendars);
     }
     
+    /*
+     * createAction
+     */
     public function createAction()
     {
         
@@ -19,7 +29,6 @@ class CalendarController extends \Phalcon\Mvc\Controller
        
         if (!$calendar->create()) {
         
-            //The store failed, the following messages were produced
             foreach ($calendar->getMessages() as $message) {
                 $this->flash->error((string) $message);
             }
@@ -36,7 +45,9 @@ class CalendarController extends \Phalcon\Mvc\Controller
         );
     }
 
-    
+    /*
+     * updateAction
+     */
     public function updateAction()
     {
         $id = $this->request->getPost("id", "int");
@@ -59,6 +70,11 @@ class CalendarController extends \Phalcon\Mvc\Controller
             );
     }
 
+    /*
+     * removeAction
+     * Delete calendar and appointments in it.
+     * @todo show user a confirmation before deleteing (maybe use js).
+     */
     public function removeAction()
     {
         $id = $this->request->get("id", "int");
@@ -67,6 +83,12 @@ class CalendarController extends \Phalcon\Mvc\Controller
         if (!$calendar) {
             $this->flash->error("calendar does not exist " . $id);
         
+        }
+        
+        $appointments = Appointment::find(array(
+            'conditions' => "calendar_id = $id"));        
+        foreach ($appointments as $appointment) {
+            $appointment->delete();
         }
         
         if ($calendar->delete()){

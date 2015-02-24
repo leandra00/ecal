@@ -3,26 +3,56 @@
 use Phalcon\Logger\Adapter\File as FileAdapter;
 use Phalcon\Logger\Formatter\Line as LineFormatter;
 
+/*
+ * AppointmentController
+ * A CRUD for appointments
+ */
 class AppointmentController extends \Phalcon\Mvc\Controller
 {
     
+    /*
+     * indexAction
+     */
     public function indexAction()
     {
+        
         $calendar_id = $this->request->get('calendar_id');
+        if (!$calendar_id) {
+            $calendar_id = $this->dispatcher->getParam('calendar_id');
+        }
+        $calendar = Calendar::findFirstById($calendar_id);
+        
+        if (!$calendar) {
+            
+            $this->flash->error('Calendar not found.');
+            return $this->dispatcher->forward(
+                array(
+                    'controller' => 'calendar',
+                    'action' => 'index')
+            );
+        }
         
         $appointments = Appointment::find(array(
-            'calendar_id' => $calendar_id, 
+            'conditions' => "calendar_id = $calendar_id", 
             'order' => 'start_date, start_time'));
-        
+             
+        $this->view->setVar("calendar_name", $calendar->name);
         $this->view->setVar("calendar_id", $calendar_id);
         $this->view->setVar("appointments", $appointments);
     }
     
+    /*
+     * createAction
+     * Log if an appointment is created
+     * 
+     * @todo validate start date and time are in the future and end date and 
+     * time occur after start date/time
+     */
     public function createAction()
     {
         
         $appointment = new Appointment();
-        
+        $appointment->calendar_id   = $this->request->getPost("calendar_id", "int");
         $appointment->title         = $this->request->getPost("title", "striptags");
         $appointment->location      = $this->request->getPost("location", "striptags");
         $appointment->start_date    = $this->request->getPost("start_date", "striptags");
@@ -33,7 +63,6 @@ class AppointmentController extends \Phalcon\Mvc\Controller
        
         if (!$appointment->create()) {
         
-            //The store failed, the following messages were produced
             foreach ($appointment->getMessages() as $message) {
                 $this->flash->error((string) $message);
             }
@@ -47,11 +76,19 @@ class AppointmentController extends \Phalcon\Mvc\Controller
         return $this->dispatcher->forward(
             array(
                 'controller' => 'appointment',
-                'action' => 'index')
+                'action' => 'index',
+                'params' => array('calendar_id' => $appointment->calendar_id)
+            )
         );
     }
 
-    
+    /*
+     * updateAction
+     * Log if appointment is updated successfully.
+     * 
+     * @todo validate start date and time are in the future and end date and 
+     * time occur after start date/time
+     */
     public function updateAction()
     {
         $id = $this->request->getPost("id", "int");
@@ -62,7 +99,7 @@ class AppointmentController extends \Phalcon\Mvc\Controller
             
         }
 
-        $appointment->title = $this->request->getPost('title', 'striptags');
+        $appointment->title         = $this->request->getPost('title', 'striptags');
         $appointment->location      = $this->request->getPost("location", "striptags");
         $appointment->start_date    = $this->request->getPost("start_date", "striptags");
         $appointment->start_time    = $this->request->getPost("start_time", "striptags");
@@ -74,14 +111,22 @@ class AppointmentController extends \Phalcon\Mvc\Controller
             $this->log('update', $id);
             $this->flash->success("Appointment was updated successfully");
         }
-       
+        
         return $this->dispatcher->forward(
             array(
                 'controller' => 'appointment', 
-                'action' => 'index')
-            );
+                'action' => 'index',
+                'params' => array('calendar_id' => $appointment->calendar_id)
+            )
+         );
     }
 
+    /*
+     * removeAction
+     * Log if appointment has been removed
+     * 
+     * @todo add confirmation message before deleting (maybe use js for this)
+     */
     public function removeAction()
     {
         $id = $this->request->get("id", "int");
@@ -100,13 +145,18 @@ class AppointmentController extends \Phalcon\Mvc\Controller
         return $this->dispatcher->forward(
             array(
                 'controller' => 'appointment',
-                'action' => 'index')
+                'action' => 'index',
+                'params' => array('calendar_id' => $appointment->calendar_id)
+            )
         );
     }
     
+    /*
+     * log
+     */
     private function log($action, $id)
     {
-        $logger = new FileAdapter("../app/logs/appointment.log");
+        $logger = new FileAdapter("../logs/appointment.log");
         $formatter = new LineFormatter("%message%");
         $logger->setFormatter($formatter);
         
